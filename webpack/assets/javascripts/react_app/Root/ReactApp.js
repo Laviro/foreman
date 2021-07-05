@@ -9,7 +9,7 @@ import AppSwitcher from '../routes';
 
 import apolloClient from './apollo';
 
-const ReactApp = ({ layout, metadata, toasts }) => {
+const ReactApp = ({ layout, metadata, toasts, indexPages }) => {
   const contextData = { metadata, toasts };
   const ForemanContext = getForemanContext(contextData);
 
@@ -19,7 +19,7 @@ const ReactApp = ({ layout, metadata, toasts }) => {
         <ApolloProvider client={apolloClient}>
           <ConnectedRouter history={history}>
             <Layout data={layout}>
-              <AppSwitcher />
+              <AppSwitcher indexPages={indexPages} />
             </Layout>
           </ConnectedRouter>
         </ApolloProvider>
@@ -32,6 +32,7 @@ ReactApp.propTypes = {
   layout: LayoutPropTypes.data.isRequired,
   metadata: PropTypes.object.isRequired,
   toasts: PropTypes.array.isRequired,
+  indexPages: PropTypes.array.isRequired,
 };
 
 export default ReactApp;

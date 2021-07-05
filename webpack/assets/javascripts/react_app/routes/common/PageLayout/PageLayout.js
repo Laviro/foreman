@@ -22,11 +22,13 @@ const PageLayout = ({
   beforeToolbarComponent,
   isLoading,
   children,
+  className,
+  title,
 }) => (
-  <div id="main">
+  <div id="main" className={className}>
     <div id="react-content">
       <Head>
-        <title>{header}</title>
+        <title>{title || header}</title>
       </Head>
       <ToastsList railsMessages={toastNotifications} />
       <div id="breadcrumb">
@@ -68,6 +70,8 @@ const PageLayout = ({
 );
 
 PageLayout.propTypes = {
+  className: PropTypes.string,
+  title: PropTypes.string,
   children: PropTypes.node.isRequired,
   searchable: PropTypes.bool.isRequired,
   header: PropTypes.string,
@@ -119,6 +123,8 @@ PageLayout.propTypes = {
 };
 
 PageLayout.defaultProps = {
+  className: '',
+  title: '',
   searchProps: {},
   header: '',
   searchQuery: '',

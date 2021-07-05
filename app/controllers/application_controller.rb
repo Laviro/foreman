@@ -243,6 +243,35 @@ class ApplicationController < ActionController::Base
     base.paginate(:page => params[:page], :per_page => params[:per_page])
   end
 
+  def can_edit?(model_id)
+    is_authorized_for_action?(:update, model_id)
+  end
+
+  def can_delete?(model_id)
+    is_authorized_for_action?(:destroy, model_id)
+  end
+
+  def is_authorized_for_action?(action, model_id)
+    authorized_for(controller: controller_permission, action: model_of_controller.find_permission_name(action), id: model_id)
+  end
+
+  def js_link_if_can_edit(model_id, path, label)
+    can_edit?(model_id) ? js_link_to(label, path) : label
+  end
+
+  def js_link_to(label, path)
+    { type: 'link', label: label, path: path }
+  end
+
+  def js_sortable_col(label, sort_by)
+    {label: label, sort_by: sort_by}
+  end
+
+  def js_delete_if_authorized(model_id, confirm_msg, path, operation = "delete")
+    props = { label: _("Delete"), disabled: !can_delete?(model_id), message: confirm_msg, operation: operation, path: path }
+    { component: 'TableConfirmModal', props: props }
+  end
+
   private
 
   def require_admin
@@ -291,11 +320,20 @@ class ApplicationController < ActionController::Base
     end
     hash[:success_redirect] ||= saved_redirect_url_or(send("#{controller_name}_url"))
 
-    success hash[:success_msg]
-    if hash[:success_redirect] == :back
-      redirect_back(fallback_location: saved_redirect_url_or(send("#{controller_name}_url")))
-    else
-      redirect_to hash[:success_redirect]
+    respond_to do |format|
+      format.html do
+        success hash[:success_msg]
+        if hash[:success_redirect] == :back
+          redirect_back(fallback_location: saved_redirect_url_or(send("#{controller_name}_url")))
+        else
+          redirect_to hash[:success_redirect]
+        end
+      end
+      format.json do
+        render json: {
+          message: hash[:success_msg],
+        }, status: :ok
+      end
     end
   end
 
